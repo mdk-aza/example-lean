@@ -44,6 +44,32 @@ def two   : NatP := S one
 def three : NatP := S two
 def four  : NatP := S three
 
+-- 📘 4. Lean で T-SUCC を証明規則として書くことはできるか？
+-- できるが、Lean では通常は 「推論規則」ではなく「再帰定義」で書く」 のが普通。
+-- ただし、推論規則として書き直すことも可能です：
+
+/-- 足し算の「関係」版（P-ZERO / P-SUCC に対応） -/
+inductive AddRel : NatP → NatP → NatP → Prop where
+  | P_ZERO (n) :
+      -- 0 plus n is n
+      AddRel Z n n
+  | P_SUCC (n1 n2 n3) :
+      -- if n1 plus n2 is n3, then (n1+1) plus n2 is (n3+1)
+      AddRel n1 n2 n3 →
+      AddRel (S n1) n2 (S n3)
+
+/-- 掛け算の「関係」版（T-ZERO / T-SUCC に対応） -/
+inductive TimesRel : NatP → NatP → NatP → Prop where
+  | T_ZERO (n) :
+      -- 0 times n is 0
+      TimesRel Z n Z
+  | T_SUCC (n1 n2 n3 n4) :
+      -- if  n1 × n2 is n3  and  n2 + n3 is n4
+      TimesRel n1 n2 n3 →
+      AddRel   n2 n3 n4 →
+      -- then (n1+1) × n2 is n4
+      TimesRel (S n1) n2 n4
+
 /-
 =======================================
   以下、本の例題に対応する証明たち
@@ -101,6 +127,64 @@ theorem mul_two_two : two *ₙ two = four := by
   -- simp = 定義・定理をたくさん展開し、式を最大限簡単にして証明してくれるツール
   -- 多段階の展開を自動で探索して簡約する
   simp [two, one, zero, three, four, mul, add]
+
+
+/-
+=======================================
+  以下、本の例題に対応する証明たちを推論規則バージョンで動かす
+=======================================
+-/
+example : AddRel one two three := by
+  -- ステップ1: 0 plus 2 is 2 （P-ZERO）
+  have h0 : AddRel zero two two :=
+    AddRel.P_ZERO two
+  -- ステップ2: 1 plus 2 is 3 （P-SUCC）
+  exact AddRel.P_SUCC zero two two h0
+
+example : AddRel two two four := by
+  -- 0 plus 2 is 2
+  have h0 : AddRel zero two two :=
+    AddRel.P_ZERO two
+  -- 1 plus 2 is 3
+  have h1 : AddRel one  two three :=
+    AddRel.P_SUCC zero two two h0
+  -- 2 plus 2 is 4
+  have h2 : AddRel two  two four :=
+    AddRel.P_SUCC one  two three h1
+  exact h2
+
+example : TimesRel two two four := by
+  -- 0 × 2 is 0
+  have h0 : TimesRel zero two zero :=
+    TimesRel.T_ZERO two
+
+  -- 2 plus 0 is 2（P-ZERO + P-SUCC ×2）
+  have h_add_20 : AddRel two zero two := by
+    have hz : AddRel zero zero zero :=
+      AddRel.P_ZERO zero
+    have h1 : AddRel one  zero one  :=
+      AddRel.P_SUCC zero zero zero hz
+    have h2 : AddRel two  zero two  :=
+      AddRel.P_SUCC one  zero one  h1
+    exact h2
+
+  -- 1 × 2 is 2（T-SUCC, n1=0, n2=2, n3=0, n4=2）
+  have h1_times : TimesRel one two two :=
+    TimesRel.T_SUCC zero two zero two h0 h_add_20
+
+  -- 2 plus 2 is 4（さっきの h2 を再利用）
+  have h_add_22 : AddRel two two four := by
+    have hz : AddRel zero two two :=
+      AddRel.P_ZERO two
+    have h1 : AddRel one  two three :=
+      AddRel.P_SUCC zero two two hz
+    have h2 : AddRel two  two four  :=
+      AddRel.P_SUCC one  two three h1
+    exact h2
+
+  -- 2 × 2 is 4（T-SUCC, n1=1, n2=2, n3=2, n4=4）
+  exact TimesRel.T_SUCC one two two four h1_times h_add_22
+
 
 /-- 実行用 main -/
 def main : IO Unit := do
