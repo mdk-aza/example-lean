@@ -1,0 +1,50 @@
+<templateSet group="LeanUnicode">
+    <!-- \to → → -->
+    <template name="\to" value="→" description="Lean: arrow" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+
+    <!-- \imp → → （好みで） -->
+    <template name="\imp" value="→" description="Lean: implication arrow" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+
+    <!-- \fa → ∀ -->
+    <template name="\fa" value="∀" description="Lean: forall" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+
+    <!-- \ex → ∃ -->
+    <template name="\ex" value="∃" description="Lean: exists" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+
+    <!-- \+n → +ₙ -->
+    <template name="\+n" value="+ₙ" description="Lean: Peano add" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+
+    <!-- \*n → *ₙ -->
+    <template name="\*n" value="*ₙ" description="Lean: Peano mul" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+
+    <!-- \Nat → ℕ （お好みで） -->
+    <template name="\Nat" value="ℕ" description="Lean: natural numbers symbol" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="OTHER" value="true" />
+        </context>
+    </template>
+</templateSet>
